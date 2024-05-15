@@ -2,18 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.messages import constants
 from .models import Conta, Categoria
-
+from .utils import calcula_total
 def home(request):
     if request.method == 'GET':
-        return render(request, 'home.html')
+        contas = Conta.objects.all()
+        total_contas = calcula_total(contas, 'valor')
+        return render(request, 'home.html', {'contas': contas, 'total_contas': total_contas})
 
 def gerenciar(request):
     if request.method == 'GET':
         contas = Conta.objects.all()
         categorias = Categoria.objects.all()
-        total_contas = 0
-        for conta in contas:
-            total_contas += conta.valor
+        total_contas = calcula_total(contas, 'valor')
         return render(request, 'gerenciar.html', {'contas': contas, 'total_contas': total_contas, 'categorias': categorias})
 
 def cadastrar_banco(request):
@@ -65,7 +65,7 @@ def cadastrar_categoria(request):
         print(e)
         messages.add_message(request, constants.ERROR, 'Erro interno do sistema')
         return redirect('/perfil/gerenciar/')
-    
+
 def update_categoria(request, id):
     categoria = get_object_or_404(Categoria, id=id)
     categoria.essencial = not categoria.essencial
