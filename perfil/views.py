@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.messages import constants
-from .models import Conta
+from .models import Conta, Categoria
 from django.http import HttpResponse
 
 def home(request):
@@ -11,10 +11,11 @@ def home(request):
 def gerenciar(request):
     if request.method == 'GET':
         contas = Conta.objects.all()
+        categorias = Categoria.objects.all()
         total_contas = 0
         for conta in contas:
             total_contas += conta.valor
-        return render(request, 'gerenciar.html', {'contas': contas, 'total_contas': total_contas})
+        return render(request, 'gerenciar.html', {'contas': contas, 'total_contas': total_contas, 'categorias': categorias})
 
 def cadastrar_banco(request):
     if request.method == 'POST':
@@ -40,3 +41,29 @@ def cadastrar_banco(request):
         except Exception:
             messages.add_message(request, constants.ERROR, 'Erro interno do sistema')
             return redirect('/perfil/gerenciar/')
+
+def deletar_banco(request, id):
+    conta = get_object_or_404(Conta, id=id)
+    conta.delete()
+
+    messages.add_message(request, constants.SUCCESS, 'Conta removida com sucesso')
+    return redirect('/perfil/gerenciar/')
+
+
+def cadastrar_categoria(request):
+    nome = request.POST.get('categoria')
+    essencial = bool(request.POST.get('essencial'))
+
+    try:
+        categoria = Categoria(
+            categoria=nome,
+            essencial=essencial,
+        )
+        categoria.save()
+        messages.add_message(request, constants.SUCCESS, 'Categoria cadastrada com sucesso')
+        return redirect('/perfil/gerenciar/')
+    except Exception as e:
+        print(e)
+        messages.add_message(request, constants.ERROR, 'Erro interno do sistema')
+        return redirect('/perfil/gerenciar/')
+    

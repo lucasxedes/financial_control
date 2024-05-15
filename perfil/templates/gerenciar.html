@@ -28,7 +28,8 @@
                             {% if conta.icone %}
                             <span><img width="10%" src="{{conta.icone.url}}">&nbsp&nbsp{{conta.apelido}}</span>
                             {% endif %}
-                            <span class="total-conta positivo ">R$ {{conta.valor}}</span>
+                            <span class="total-conta positivo " class="rounded-circle" >R$ {{conta.valor}}&nbsp&nbsp&nbsp
+                                <a href="/perfil/deletar_banco/{{conta.id}}"><img src="{% static 'perfil/img/exit.png' %}" ></a></span>
                         </div>
                         <br>
                     {% endfor %}
@@ -77,7 +78,7 @@
             <div class="col-md-5">
                 <span class="fonte-destaque">Nova categoria</span>
 
-                <form action="" method="POST">
+                <form action="{% url 'cadastrar_categoria' %}" method="POST">{% csrf_token %}
                     <label>Categoria</label>
                     <input type="text" name="categoria" class="form-control">
                     <br>
@@ -98,13 +99,13 @@
                 <div class="contas">
 
                     
+                    {% for categoria in categorias %}
                         <div class="lista-contas-main">
-                            <span>Lazer</span>
-
-                            <span class="total-conta"><a href="#"><img src="{% static 'perfil/img/check.png' %}"></a></span>
+                            <span>{{categoria}}</span>
+                            <span class="total-conta"><a href="#"><img src="{% if categoria.essencial %} {% static 'perfil/img/check.png' %} {% else %} {% static 'perfil/img/exit.png' %} {% endif %}"></a></span>
                         </div>
                         <br>
-                   
+                    {% endfor %}
                     
                 </div>
             </div>
