@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.messages import constants
 from .models import Conta, Categoria
-from django.http import HttpResponse
 
 def home(request):
     if request.method == 'GET':
@@ -67,3 +66,9 @@ def cadastrar_categoria(request):
         messages.add_message(request, constants.ERROR, 'Erro interno do sistema')
         return redirect('/perfil/gerenciar/')
     
+def update_categoria(request, id):
+    categoria = get_object_or_404(Categoria, id=id)
+    categoria.essencial = not categoria.essencial
+
+    categoria.save()
+    return redirect('/perfil/gerenciar/')
