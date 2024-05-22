@@ -1,7 +1,13 @@
+import os
+from datetime import datetime
+from io import BytesIO
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.messages import constants
-from datetime import datetime
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from django.http import FileResponse
 from perfil.models import Categoria, Conta
 from .models import Valores
 
@@ -53,3 +59,16 @@ def view_extrato(request):
         valores = valores.filter(categoria__id=categoria_get)
 
     return render(request, 'view_extrato.html', {'valores': valores, 'contas': contas, 'categorias': categorias})
+
+def exporta_pdf(request):
+    valores = Valores.objects.filter(data__month=datetime.now().month)
+
+    path_template = os.path.join(settings.BASE_DIR, 'templates/partials/extrato.html')
+    template_render = render_to_string(path_template, {'valores': valores})
+
+    path_output = BytesIO()
+    HTML(string=template_render).write_pdf(path_output)
+    path_output.seek(0)
+
+    return FileResponse(path_output, filename='extrato.pdf')
+    
