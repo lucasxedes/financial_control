@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.contrib.messages import constants
 from .models import Conta, Categoria
 from .utils import calcula_total
+
+
 def home(request):
     if request.method == 'GET':
         contas = Conta.objects.all()
